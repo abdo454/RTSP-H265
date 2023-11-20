@@ -83,7 +83,6 @@ void rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark)
     ctx->seq = (ctx->seq + 1) & 0xffff;
 }
 
-
 static void rtpSendNALH264AVC(RTPMuxContext *ctx, const uint8_t *nal, int size, int last)
 {
     printf("rtpSendNAL  len = %d M=%d\n", size, last);
@@ -443,3 +442,4 @@ void rtpSendH265HEVC(RTPMuxContext *ctx, UDPContext *udp, const uint8_t *buf, in
         r = r1;
     }
 }
+// From an H265 stream, query the complete NAL and send it until all NAL in this stream is sent.

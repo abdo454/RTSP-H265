@@ -12,10 +12,15 @@
 #ifndef RTPSERVER_RTPENC_H
 #define RTPSERVER_RTPENC_H
 
-#include <stdint.h>
+#include "Network.h"
 
 #define RTP_PAYLOAD_MAX 1400
-
+#if !defined(RTP_VERSION)
+#define RTP_VERSION 2
+#endif // MACRO
+#if !defined(RTP_H264)
+#define RTP_H264 96
+#endif // MACRO
 typedef struct
 {
     uint8_t cache[RTP_PAYLOAD_MAX + 12]; // RTP packet = RTP header + buf
@@ -31,10 +36,10 @@ typedef struct
 
 int initRTPMuxContext(RTPMuxContext *ctx);
 
-/* send a H.264/AVC video stream */
-void rtpSendH264AVC(RTPMuxContext *ctx, int ClientSocket, const uint8_t *buf, int size);
+// /* send a H.264/AVC video stream */
+// void rtpSendH264AVC(RTPMuxContext *ctx, UDPContext *udp, const uint8_t *buf, int size);
 
-/* send a H.265/HEVC video stream */
-void rtpSendH265HEVC(RTPMuxContext *ctx, int ClientSocket, const uint8_t *buf, int size);
-
+// /* send a H.265/HEVC video stream */
+// void rtpSendH265HEVC(RTPMuxContext *ctx, UDPContext *udp, const uint8_t *buf, int size);
+// void rtpSendH265HEVCTemp(RTPMuxContext *, UDPContext *, unsigned char const *, int *);
 #endif // RTPSERVER_RTPENC_H

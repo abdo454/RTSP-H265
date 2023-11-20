@@ -1,9 +1,9 @@
 
 SRCS = ../src/CRtspSession.cpp ../src/CStreamer.cpp ../src/JPEGSamples.cpp ../src/SimStreamer.cpp  ../src/AVC.cpp \
 ../src/AVC.h \
- ../src/RTPEnc.cpp \
   ../src/RTPEnc.h \
  ../src/Utils.cpp \
+  ../src/RTPEnc.cpp \
   ../src/Utils.h \
  ../src/Network.cpp \
  ../src/Network.h

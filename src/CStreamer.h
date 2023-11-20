@@ -2,7 +2,7 @@
 
 #include "platglue.h"
 #include "LinkedListElement.h"
-
+#include "RTPEnc.h"
 typedef unsigned const char *BufPtr;
 
 class CRtspSession;
@@ -10,11 +10,11 @@ class CRtspSession;
 class CStreamer
 {
 public:
-    CStreamer( u_short width, u_short height );
+    CStreamer(u_short width, u_short height);
     virtual ~CStreamer();
 
-    CRtspSession *addSession( SOCKET aClient );
-    LinkedListElement* getClientsListHead() { return &m_Clients; }
+    CRtspSession *addSession(SOCKET aClient);
+    LinkedListElement *getClientsListHead() { return &m_Clients; }
 
     int anySessions() { return m_Clients.NotEmpty(); }
 
@@ -23,31 +23,31 @@ public:
     u_short GetRtpServerPort();
     u_short GetRtcpServerPort();
 
-    virtual void    streamImage(uint32_t curMsec) = 0; // send a new image to the client
+    virtual void streamImage(uint32_t curMsec) = 0; // send a new image to the client
     bool InitUdpTransport(void);
     void ReleaseUdpTransport(void);
     bool debug;
-    void setURI( String hostport, String pres = "mjpeg", String stream = "1" ); // set URI parts for sessions to use.
-    String getURIHost(){ return m_URIHost; }; // for getting things back by sessions
-    String getURIPresentation(){ return m_URIPresentation; };
-    String getURIStream(){ return m_URIStream; };
+    void setURI(String hostport, String pres = "mjpeg", String stream = "1"); // set URI parts for sessions to use.
+    String getURIHost() { return m_URIHost; };                                // for getting things back by sessions
+    String getURIPresentation() { return m_URIPresentation; };
+    String getURIStream() { return m_URIStream; };
 
 protected:
-
-    void    streamFrame(unsigned const char *data, uint32_t dataLen, uint32_t curMsec);
-
-    String  m_URIHost; // Host:port URI part that client should use to connect. also it is reported in session answers where appropriate.
-    String  m_URIPresentation; // name of presentation part of URI. sessions will check if client used correct one
-    String  m_URIStream; // stream part of the URI.
+    void streamFrame(unsigned const char *data, uint32_t dataLen, uint32_t curMsec);
+    void rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last);
+    String m_URIHost;         // Host:port URI part that client should use to connect. also it is reported in session answers where appropriate.
+    String m_URIPresentation; // name of presentation part of URI. sessions will check if client used correct one
+    String m_URIStream;       // stream part of the URI.
 
 private:
-    int    SendRtpPacket(unsigned const char *jpeg, int jpegLen, int fragmentOffset, BufPtr quant0tbl = NULL, BufPtr quant1tbl = NULL);// returns new fragmentOffset or 0 if finished with frame
+    int SendRtpPacket(unsigned const char *jpeg, int jpegLen, int fragmentOffset, BufPtr quant0tbl = NULL, BufPtr quant1tbl = NULL); // returns new fragmentOffset or 0 if finished with frame
+    int rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark);
 
-    UDPSOCKET m_RtpSocket;           // RTP socket for streaming RTP packets to client
-    UDPSOCKET m_RtcpSocket;          // RTCP socket for sending/receiving RTCP packages
+    UDPSOCKET m_RtpSocket;  // RTP socket for streaming RTP packets to client
+    UDPSOCKET m_RtcpSocket; // RTCP socket for sending/receiving RTCP packages
 
-    IPPORT m_RtpServerPort;      // RTP sender port on server
-    IPPORT m_RtcpServerPort;     // RTCP sender port on server
+    IPPORT m_RtpServerPort;  // RTP sender port on server
+    IPPORT m_RtcpServerPort; // RTCP sender port on server
 
     u_short m_SequenceNumber;
     uint32_t m_Timestamp;
@@ -61,8 +61,6 @@ private:
     u_short m_width; // image data info
     u_short m_height;
 };
-
-
 
 // When JPEG is stored as a file it is wrapped in a container
 // This function fixes up the provided start ptr to point to the
