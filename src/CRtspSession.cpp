@@ -95,7 +95,7 @@ bool CRtspSession::ParseRtspRequest( char * aRequest, unsigned aRequestSize )
 
     /* now our typical command will be like:
     [CRLF]
-    SETUP rtsp://server.example.com/mjpeg/1 RTSP/1.0
+    SETUP rtsp://server.example.com/live/1 RTSP/1.0
     CSeq: 2
     Transport: RTP/AVP;unicast;something;
         client_port=7000-7001;somethingelse
@@ -411,7 +411,7 @@ void CRtspSession::Handle_RtspDESCRIBE() // FIXME: too much redundancy. should e
     ColonPtr = strstr( OBuf, ":" );
     if (ColonPtr != nullptr) ColonPtr[0] = 0x00;
 
-    snprintf( SDPBuf, sizeof(SDPBuf),
+/*     snprintf( SDPBuf, sizeof(SDPBuf),
              "v=0\r\n"
              "o=- %d 1 IN IP4 %s\r\n"
              "s=\r\n"
@@ -420,7 +420,14 @@ void CRtspSession::Handle_RtspDESCRIBE() // FIXME: too much redundancy. should e
              // "a=x-dimensions: 640,480\r\n"
              "c=IN IP4 0.0.0.0\r\n",
              rand(),
-             OBuf );
+             OBuf ); */
+    snprintf( SDPBuf, sizeof(SDPBuf),
+        "m=video 1234 RTP/AVP 96\r\n"
+        "a=rtpmap:96 H265/90000\r\n"
+        "a=framerate:30\r\n"
+        "c=IN IP4 0.0.0.0\r\n"
+        "s=Sample Video\r\n"
+        );
 
     snprintf( URLBuf, sizeof(URLBuf),
              "rtsp://%s/%s/%s", m_CommandHostPort, m_CommandPresentationPart, m_CommandStreamPart );
@@ -493,7 +500,7 @@ void CRtspSession::Handle_RtspPLAY()
              "%s\r\n"
              "Range: npt=0.000-\r\n"
              "Session: %i\r\n"
-             "RTP-Info: url=rtsp://127.0.0.1:8554/mjpeg/1/track1\r\n\r\n", // FIXME
+             "RTP-Info: url=rtsp://127.0.0.1:8554/live/1/track1\r\n\r\n", // FIXME
              m_CSeq,
              DateHeader(),
              m_RtspSessionID);

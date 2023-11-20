@@ -7,6 +7,7 @@ SRCS = ../src/CRtspSession.cpp ../src/CStreamer.cpp ../src/JPEGSamples.cpp ../sr
   ../src/Utils.h \
  ../src/Network.cpp \
  ../src/Network.h
+ 
 run: *.cpp ../src/*
 	#skill testerver
 	g++ -Wall -o testserver -I ../src -I . *.cpp $(SRCS)

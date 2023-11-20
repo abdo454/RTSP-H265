@@ -25,7 +25,7 @@ CStreamer::CStreamer(u_short width, u_short height) : m_Clients()
     debug = false;
 
     m_URIHost = "127.0.0.1:554";
-    m_URIPresentation = "mjpeg";
+    m_URIPresentation = "live";
     m_URIStream = "1";
 }
 

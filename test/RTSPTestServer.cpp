@@ -23,7 +23,7 @@ void printtime(int counter)
 RTPMuxContext rtpMuxContext;
 uint8_t *stream = NULL;
 int stream_len = 0;
-const char *fileName = "sample_960x540.hevc";
+const char *fileName = "../sample_1280x720.hevc";
 
 void workerThread(SOCKET s)
 {

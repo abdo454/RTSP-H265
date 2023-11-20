@@ -27,7 +27,7 @@ public:
     bool InitUdpTransport(void);
     void ReleaseUdpTransport(void);
     bool debug;
-    void setURI(String hostport, String pres = "mjpeg", String stream = "1"); // set URI parts for sessions to use.
+    void setURI(String hostport, String pres = "live", String stream = "1"); // set URI parts for sessions to use.
     String getURIHost() { return m_URIHost; };                                // for getting things back by sessions
     String getURIPresentation() { return m_URIPresentation; };
     String getURIStream() { return m_URIStream; };
