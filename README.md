@@ -1,11 +1,13 @@
-# Description 
+# Description
 
-This is a small Library for Streaming naked H265 video file Over RTSP server. It's based on the Library MICRO-RTSP which are limited for mjpeg formats.this library is for Streaming H265 naked files, and it's based on my previous repository [RTP-H265-H264](https://github.com/abdo454/RTP-H265-H264) which for Streaming naked H.264/AVC & HEVC/H.265 files over RTP protocols.
+This is a small Library for Streaming naked H265 video file Over RTSP server. It's based on :
+
+1. the Library MICRO-RTSP which are limited for mjpeg formats.
+2. the previous repository [RTP-H265-H264](https://github.com/abdo454/RTP-H265-H264) which for Streaming naked H.264/AVC & HEVC/H.265 files over RTP protocols.
 
 # posix/linux usage
 
-There is a small standalone example [here](/test/RTSPTestServer.cpp).  You can build it by following [these](/test/README.md) directions.  The usage of the two key classes (CRtspSession and SimStreamer) are very similar to to the ESP32 usage.
-
+There is a small standalone example [here](/test/RTSPTestServer.cpp). You can build it by following [these](/test/README.md) directions. The usage of the two key classes (CRtspSession and SimStreamer) are very similar to to the ESP32 usage.
 
 # License
 
