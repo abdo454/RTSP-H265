@@ -26,41 +26,28 @@ const char *fileName = "../sample_1280x720.hevc";
 
 void workerThread(SOCKET s)
 {
-
-    SimStreamer streamer(true); // our streamer for UDP/TCP based RTP transport. 
-
-    streamer.addSession(s)->debug = true; // our threads RTSP session and state
+    SimStreamer streamer(true);            // our streamer for UDP/TCP based RTP transport.
+    streamer.addSession(s)->debug = false; // our threads RTSP session and state
     printtime(1);
     while (streamer.anySessions())
     {
-        printf("stream_len %d\r\n", stream_len);
-
         uint32_t timeout = 10;
         if (!streamer.handleRequests(timeout))
         {
-            // struct timeval now;
-            // gettimeofday(&now, NULL); // crufty msecish timer
-            // uint32_t msec = now.tv_sec * 1000 + now.tv_usec / 1000;
             uint8_t *nal = nullptr;
             int nal_len = 0;
             streamer.SelectNextNal(stream, stream_len, nal, nal_len);
-            printf("stream_len %d\r\n", stream_len);
             streamer.StreamNal(&rtpMuxContext, nal, nal_len);
             rtpMuxContext.timestamp += (90000.0 / 30);
-            
-            usleep(1000000 / 33);
-            if (stream_len < 10)
+            usleep(1000000 / 30);
+
+            if (stream_len <= 0)
             {
-                printf("stream_len < 10\r\n");
-                while (1)
-                {
-                    /* code */
-                }
+                printf("End of %s \r\n", fileName);
+                exit(1);
             }
         }
-        //  printtime(2);
     }
-    //  printtime(4);
 }
 
 int main()
@@ -111,7 +98,6 @@ int main()
         printf("Client connected. Client address: %s\r\n", inet_ntoa(ClientAddr.sin_addr));
         if (fork() == 0)
             workerThread(ClientSocket);
-        printf("Return to search for new clients\r\n");
     }
 
     closesocket(MasterSocket);
