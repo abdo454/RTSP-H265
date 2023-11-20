@@ -33,14 +33,13 @@ public:
     String getURIStream() { return m_URIStream; };
 
 protected:
-    void streamFrame(unsigned const char *data, uint32_t dataLen, uint32_t curMsec);
     void rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last);
     String m_URIHost;         // Host:port URI part that client should use to connect. also it is reported in session answers where appropriate.
     String m_URIPresentation; // name of presentation part of URI. sessions will check if client used correct one
     String m_URIStream;       // stream part of the URI.
 
 private:
-    int SendRtpPacket(unsigned const char *jpeg, int jpegLen, int fragmentOffset, BufPtr quant0tbl = NULL, BufPtr quant1tbl = NULL); // returns new fragmentOffset or 0 if finished with frame
+   
     int rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark);
 
     UDPSOCKET m_RtpSocket;  // RTP socket for streaming RTP packets to client
