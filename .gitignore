@@ -2,3 +2,4 @@ testserver
 octo.jpg
 *.exe
 *.o
+.vscode/
