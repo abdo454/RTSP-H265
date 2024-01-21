@@ -58,8 +58,8 @@ void CStreamer::setURI(String hostport, String pres, String stream) // set URI p
 }
 int CStreamer::rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark)
 {
-    printf("rtpSendData\r\n");
-    int res = 0;
+    // printf("rtpSendData\r\n");
+    // int res = 0;
 
     /* build the RTP header */
     /*
@@ -118,12 +118,12 @@ int CStreamer::rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int 
         element = element->m_Next;
     }
 
-    printf("rtpSendData cache [%d]: ", res);
-    for (int i = 0; i < 20; ++i)
-    {
-        printf("%.2X ", ctx->cache[i]);
-    }
-    printf("\n\n");
+    // printf("rtpSendData cache [%d]: ", res);
+    // for (int i = 0; i < 20; ++i)
+    // {
+    //     printf("%.2X ", ctx->cache[i]);
+    // }
+    // printf("\n\n");
 
     memset(ctx->cache, 0, RTP_PAYLOAD_MAX + 10);
 
@@ -220,7 +220,7 @@ bool CStreamer::handleRequests(uint32_t readTimeoutMs)
 void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last)
 {
 
-    printf("NALU len = %d M=%d\n", size, last);
+    // printf("NALU len = %d M=%d\n", size, last);
 
     // Single NAL Packet or Aggregation Packets
     if (size <= RTP_PAYLOAD_MAX)

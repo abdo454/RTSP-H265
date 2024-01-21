@@ -38,7 +38,7 @@ int initRTPMuxContext(RTPMuxContext *ctx)
 // enc RTP packet
 void rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark)
 {
-    int res = 0;
+    // int res = 0;
 
     /* build the RTP header */
     /*
@@ -68,13 +68,14 @@ void rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark)
     /* copy av data */
     memcpy(&pos[12], buf, len);
 
-    res = udpSend(gUdpContext, ctx->cache, (uint32_t)(len + 12));
-    printf("rtpSendData cache [%d]: ", res);
-    for (int i = 0; i < 20; ++i)
-    {
-        printf("%.2X ", ctx->cache[i]);
-    }
-    printf("\n\n");
+    udpSend(gUdpContext, ctx->cache, (uint32_t)(len + 12));
+    // int res = udpSend(gUdpContext, ctx->cache, (uint32_t)(len + 12));
+    // printf("rtpSendData cache [%d]: ", res);
+    // for (int i = 0; i < 20; ++i)
+    // {
+    //     printf("%.2X ", ctx->cache[i]);
+    // }
+    // printf("\n\n");
 
     memset(ctx->cache, 0, RTP_PAYLOAD_MAX + 10);
 
@@ -257,7 +258,7 @@ void rtpSendH264AVC(RTPMuxContext *ctx, UDPContext *udp, const uint8_t *buf, int
 // Splice NAL header in ctx->buff, then ff_rtp_send_data
 static void rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last)
 {
-    printf("NALU len = %d M=%d\n", size, last);
+    // printf("NALU len = %d M=%d\n", size, last);
 
     // Single NAL Packet or Aggregation Packets
     if (size <= RTP_PAYLOAD_MAX)
