@@ -357,6 +357,8 @@ bool CRtspSession::ParseRtspRequest(char *aRequest, unsigned aRequestSize)
     } // loop though headers
 
     printf("\n+ RTSP command: %s\n", CmdName);
+    if (debug)
+        printf("--------------------\n");
 
     return true;
 }
@@ -389,7 +391,7 @@ RTSP_CMD_TYPES CRtspSession::Handle_RtspRequest(char *aRequest, unsigned aReques
 
 void CRtspSession::Handle_RtspOPTION()
 {
-    static char Response[1024]; // Note: we assume single threaded, this large buf we keep off of the tiny stack
+    static char Response[100]; // 1024->100 (actual 76) MDAOOD // Note: we assume single threaded, this large buf we keep off of the tiny stack
 
     snprintf(Response, sizeof(Response),
              "RTSP/1.0 200 OK\r\nCSeq: %u\r\n"
@@ -401,9 +403,9 @@ void CRtspSession::Handle_RtspOPTION()
 
 void CRtspSession::Handle_RtspDESCRIBE() // FIXME: too much redundancy. should eliminate intermediate buffers.
 {
-    static char Response[1024]; // Note: we assume single threaded, this large buf we keep off of the tiny stack
-    static char SDPBuf[1024];
-    static char URLBuf[1024];
+    static char Response[300]; // 1024->300 ,actual 258 Note: we assume single threaded, this large buf we keep off of the tiny stack
+    static char SDPBuf[128];   // 1024->128 ,actual 97
+    static char URLBuf[75];    // 1024->75 ,actual ~45
 
     // check whether we know a stream with the URL which is requested
     m_StreamID = -1; // invalid URL
@@ -470,8 +472,8 @@ void CRtspSession::InitTransport(u_short aRtpPort, u_short aRtcpPort)
 
 void CRtspSession::Handle_RtspSETUP()
 {
-    static char Response[1024];
-    static char Transport[255];
+    static char Response[300]; // 1024->300 actual 199
+    static char Transport[180]; // 255->180 actual 111
 
     // init RTSP Session transport type (UDP or TCP) and ports for UDP transport
     InitTransport(m_ClientRTPPort, m_ClientRTCPPort);
@@ -501,7 +503,7 @@ void CRtspSession::Handle_RtspSETUP()
 
 void CRtspSession::Handle_RtspPLAY()
 {
-    static char Response[1024];
+    static char Response[220]; //1024->220 actual 156
 
     // simulate SETUP server response
     snprintf(Response, sizeof(Response),

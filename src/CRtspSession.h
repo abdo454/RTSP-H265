@@ -15,9 +15,9 @@ enum RTSP_CMD_TYPES
     RTSP_UNKNOWN
 };
 
-#define RTSP_BUFFER_SIZE       10000    // for incoming requests, and outgoing responses
-#define RTSP_PARAM_STRING_MAX  200
-#define MAX_HOSTNAME_LEN       256
+#define RTSP_BUFFER_SIZE       500  //10000 -> 500 MDAOOD  // for incoming requests, and outgoing responses
+#define RTSP_PARAM_STRING_MAX  50   //200 -> 50 MDAOOD
+#define MAX_HOSTNAME_LEN       56   //256 -> 56 MDAOOD
 
 class CRtspSession : public LinkedListElement
 {
