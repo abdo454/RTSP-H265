@@ -433,11 +433,14 @@ void CRtspSession::Handle_RtspDESCRIBE() // FIXME: too much redundancy. should e
     if (ColonPtr != nullptr)
         ColonPtr[0] = 0x00;
     int ret = snprintf(SDPBuf, sizeof(SDPBuf),
+                       "v=0\r\n"
+                       "o=- 0 0 IN IP4 127.0.0.1\r\n"
+                       "i=H.265\r\n"
                        "m=video 1234 RTP/AVP 96\r\n"
                        "a=rtpmap:96 H265/90000\r\n"
-                       "a=framerate:30\r\n"
+                       "a=framerate:10\r\n"
                        "c=IN IP4 0.0.0.0\r\n"
-                       "s=Test Video\r\n");
+                       "s=Video Streaming\r\n");
 
     ret = snprintf(URLBuf, sizeof(URLBuf),
                    "rtsp://%s/%s/%s", m_CommandHostPort, m_CommandPresentationPart, m_CommandStreamPart);
