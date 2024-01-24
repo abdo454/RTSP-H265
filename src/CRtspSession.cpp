@@ -400,19 +400,25 @@ void CRtspSession::Handle_RtspOPTION()
 
     socketsend(m_RtspClient, Response, strlen(Response));
 }
-
-void CRtspSession::Handle_RtspDESCRIBE() // FIXME: too much redundancy. should eliminate intermediate buffers.
+static bool is_number(const std::string &s)
 {
-    static char Response[300]; // 1024->300 ,actual 258 Note: we assume single threaded, this large buf we keep off of the tiny stack
-    static char SDPBuf[128];   // 1024->128 ,actual 97
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it))
+        ++it;
+    return !s.empty() && it == s.end();
+}
+
+void CRtspSession::Handle_RtspDESCRIBE()
+{
+    static char Response[512]; // 1024->300 ,actual 258
+    static char SDPBuf[256];   // 1024->356 ,actual 142
     static char URLBuf[75];    // 1024->75 ,actual ~45
 
     // check whether we know a stream with the URL which is requested
     m_StreamID = -1; // invalid URL
 
-    if (m_Streamer->getURIPresentation() == m_CommandPresentationPart &&
-        m_Streamer->getURIStream() == m_CommandStreamPart)
-        m_StreamID = 0;
+    if (m_Streamer->getURIPresentation() == m_CommandPresentationPart && is_number(m_CommandStreamPart) && strstr(m_Streamer->getURIStream().c_str(), m_CommandStreamPart))
+        m_StreamID = std::atoi(m_CommandStreamPart); // handle Slave ID from m_CommandStreamPart
 
     if (m_StreamID == -1)
     { // Stream not available
