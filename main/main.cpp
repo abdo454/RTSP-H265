@@ -18,13 +18,17 @@ void printtime(int counter)
 RTPMuxContext rtpMuxContext;
 uint8_t *stream = NULL;
 int stream_len = 0;
-const char *fileName = "../sample_1280x720.hevc";
+// const char *fileName = "../sample_960x540.hevc";
+// const char *fileName = "../sample_1280x720.hevc";
+const char *fileName = "../VideoH265.h265";
 
 void workerThread(SOCKET s)
 {
     SimStreamer streamer(true);            // our streamer for UDP/TCP based RTP transport.
     streamer.addSession(s)->debug = false; // our threads RTSP session and state
     printtime(1);
+    uint8_t *stream_buf = stream;
+    int stream_len_temp = stream_len;
     while (streamer.anySessions())
     {
         uint32_t timeout = 10;
@@ -32,18 +36,24 @@ void workerThread(SOCKET s)
         {
             uint8_t *nal = nullptr;
             int nal_len = 0;
-            streamer.SelectNextNal(stream, stream_len, nal, nal_len);
+            streamer.SelectNextNal(stream_buf, stream_len_temp, nal, nal_len);
             streamer.StreamNal(&rtpMuxContext, nal, nal_len);
             rtpMuxContext.timestamp += (90000.0 / 30);
             usleep(1000000 / 30);
+            static int Cseq = 0;
+            printf("#%d, size %d \t\r", Cseq++, nal_len);
+            fflush(stdout);
 
-            if (stream_len <= 0)
+            if (stream_len_temp <= 0)
             {
-                printf("End of %s \r\n", fileName);
-                exit(1);
+                stream_buf = stream;
+                stream_len_temp = stream_len;
+                printf("End of the file %s , Restart the file streaming again...\n",fileName);
             }
         }
     }
+    printf("End the Session\n");
+
 }
 
 int main()
@@ -66,7 +76,7 @@ int main()
 
     ServerAddr.sin_family = AF_INET;
     ServerAddr.sin_addr.s_addr = INADDR_ANY;
-    ServerAddr.sin_port = htons(8554); // listen on RTSP port 8554
+    ServerAddr.sin_port = htons(554); // listen on RTSP port 8554
     MasterSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     int enable = 1;
