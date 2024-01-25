@@ -19,8 +19,7 @@ RTPMuxContext rtpMuxContext;
 uint8_t *stream = NULL;
 int stream_len = 0;
 // const char *fileName = "../sample_960x540.hevc";
-// const char *fileName = "../sample_1280x720.hevc";
-const char *fileName = "../VideoH265.h265";
+ const char *fileName = "../sample_1280x720.hevc";
 
 void workerThread(SOCKET s)
 {
@@ -76,7 +75,7 @@ int main()
 
     ServerAddr.sin_family = AF_INET;
     ServerAddr.sin_addr.s_addr = INADDR_ANY;
-    ServerAddr.sin_port = htons(554); // listen on RTSP port 8554
+    ServerAddr.sin_port = htons(8554); // listen on RTSP port 8554
     MasterSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     int enable = 1;
