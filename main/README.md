@@ -1,13 +1,30 @@
-# Testserver
+# TestServer
 
-This project is to Streaming naked H265 file over RTSP server.
+## Overview
 
-# Usage
-1. Play the video use:
-   run $ ffplay sample_960x540.hevc
-2. Start Streaming
-Run "make" to build and run the server.
-Run ffplay rtsp://127.0.0.1:8554/live/1 start streaming
-you can run the nakwed
-that talks to that server.  If all is working you should see a static image
-of my office that I captured using a ESP32-CAM.
+TestServer is a project designed for streaming raw H.265 files over an RTSP server. It leverages an RTSP server library that utilizes RTP sockets for streaming, opening RTCP sockets without utilizing them to receive control commands from clients.
+
+## Usage Instructions
+
+### Playing the Video
+
+To play the video, execute the following command:
+
+```sh
+ffplay sample_960x540.hevc
+```
+
+### Starting the Stream
+
+To build and run the server for streaming:
+
+1. Execute `make` to compile the project, this run `./testserver` to initiate the server.
+2. Start streaming by running the command:
+
+```sh
+ffplay rtsp://127.0.0.1:8554/live/1
+```
+
+### Additional Information
+
+- **RTSP Server Library:** The library employed by this project opens RTCP sockets but does not use them to receive control commands from clients. This approach focuses on the RTP socket for streaming functionality.
