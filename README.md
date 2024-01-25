@@ -8,15 +8,13 @@ This repository introduces a compact library designed for streaming raw H265 vid
 # Usage posix/linux 
 
 1.  To view the video independently, use ffplay:
-    - Command: $ ffplay sample_960x540.hevc
+    - Command: $ `ffplay sample_960x540.hevc`
 
 2.  Navigate to the 'main' directory, execute make, and then run the generated ./testserver:
 
     1. This action initiates the RTSP server, which then awaits client connections.
-    2. To stream the video, use the following command:
-    - ffplay rtsp://127.0.0.1:8554/live/1
+    2. To stream the video, use the following command: `ffplay rtsp://127.0.0.1:8554/live/1`
 
-# posix/linux usage
 
 
 # License
