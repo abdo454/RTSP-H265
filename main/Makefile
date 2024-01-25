@@ -14,3 +14,6 @@ run: *.cpp ../src/*
 	#skill testerver
 	g++ -Wall -o testserver -I ../src -I . *.cpp $(SRCS)
 	#./testserver
+
+clean:
+	rm -f testserver *.o
