@@ -23,7 +23,7 @@
 #endif // MACRO
 typedef struct
 {
-    uint8_t cache[RTP_PAYLOAD_MAX + 12]; // RTP packet = RTP header + buf
+    uint8_t cache[RTP_PAYLOAD_MAX + 12 + 4]; // RTP packet = TCP Header (4) + RTP header(12) + buf ()
     uint8_t buf[RTP_PAYLOAD_MAX];        // NAL header + NAL
     uint8_t *buf_ptr;
 

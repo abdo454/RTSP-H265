@@ -78,14 +78,20 @@ int CStreamer::rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int 
      *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      *
      **/
-    uint8_t *pos = ctx->cache;
+    // Prepare the first 4 byte of the packet. This is the Rtp over Rtsp header in case of TCP based transport
+    ctx->cache[0] = '$'; // magic number
+    ctx->cache[1] = 0;   // number of multiplexed subchannel on RTPS connection - here the RTP channel
+    ctx->cache[2] = ((len + 12) & 0x0000FF00) >> 8;
+    ctx->cache[3] = ((len + 12) & 0x000000FF);
+    // Prepare the 12 byte RTP header
+    uint8_t *pos = &ctx->cache[4];
     pos[0] = (RTP_VERSION << 6) & 0xff;                           // V P X CC
     pos[1] = (uint8_t)((RTP_H264 & 0x7f) | ((mark & 0x01) << 7)); // M PayloadType
     Load16(&pos[2], (uint16_t)ctx->seq);                          // Sequence number
     Load32(&pos[4], ctx->timestamp);
     Load32(&pos[8], ctx->ssrc);
 
-    /* copy av data */
+    /* copy payload data */
     memcpy(&pos[12], buf, len);
 
     IPADDRESS otherip;
@@ -101,18 +107,12 @@ int CStreamer::rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int 
         {
             if (session->isTcpTransport()) // RTP over RTSP - we send the buffer + 4 byte additional header
             {
-                printf("session->isTcpTransport()\r\n while(1)\r\n\n");
-                while (1)
-                {
-                    /* code */
-                }
-
-                socketsend(session->getClient(), ctx->cache, (uint32_t)(len + 12));
+                socketsend(session->getClient(), ctx->cache, (uint32_t)(len + 12 + 4));
             }
             else // UDP - we send just the buffer by skipping the 4 byte RTP over RTSP header
             {
                 socketpeeraddr(session->getClient(), &otherip, &otherport);
-                udpsocketsend(m_RtpSocket, ctx->cache, (uint32_t)(len + 12), otherip, session->getRtpClientPort());
+                udpsocketsend(m_RtpSocket, &ctx->cache[4], (uint32_t)(len + 12), otherip, session->getRtpClientPort());
             }
         }
         element = element->m_Next;
@@ -212,10 +212,7 @@ bool CStreamer::handleRequests(uint32_t readTimeoutMs)
     return retVal;
 }
 
-
 #include <assert.h>
-
-
 
 void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last)
 {
