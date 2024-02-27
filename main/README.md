@@ -20,10 +20,8 @@ To build and run the server for streaming:
 
 1. Execute `make` to compile the project, this run `./testserver` to initiate the server.
 2. Start streaming by running the command:
-
-```sh
-ffplay rtsp://127.0.0.1:8554/live/1
-```
+    1. over UDP: `ffplay rtsp://127.0.0.1:554/live/1`
+    2. over TCP :`ffplay -rtsp_transport tcp  rtsp://127.0.0.1:554/live/1`
 
 ### Additional Information
 

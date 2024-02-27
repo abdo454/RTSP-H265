@@ -13,7 +13,9 @@ This repository introduces a compact library designed for streaming raw H265 vid
 2.  Navigate to the 'main' directory, execute make, and then run the generated ./testserver:
 
     1. This action initiates the RTSP server, which then awaits client connections.
-    2. To stream the video, use the following command: `ffplay rtsp://127.0.0.1:8554/live/1`
+    2. To stream the video, use the following command:
+       1. over UDP: `ffplay rtsp://127.0.0.1:554/live/1`
+       2. over TCP :`ffplay -rtsp_transport tcp  rtsp://127.0.0.1:554/live/1`
 
 
 
