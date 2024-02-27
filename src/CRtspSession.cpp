@@ -520,7 +520,7 @@ void CRtspSession::Handle_RtspPLAY()
              "%s\r\n"
              "Range: npt=0.000-\r\n"
              "Session: %i\r\n"
-             "RTP-Info: url=rtsp://127.0.0.1:8554/live/1/track1\r\n\r\n", // FIXME
+             "RTP-Info: url=rtsp://127.0.0.1:554/live/1/track1\r\n\r\n", // FIXME
              m_CSeq,
              DateHeader(),
              m_RtspSessionID);

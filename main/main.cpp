@@ -75,7 +75,7 @@ int main()
 
     ServerAddr.sin_family = AF_INET;
     ServerAddr.sin_addr.s_addr = INADDR_ANY;
-    ServerAddr.sin_port = htons(8554); // listen on RTSP port 8554
+    ServerAddr.sin_port = htons(554); // listen on RTSP port 554
     MasterSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     int enable = 1;
