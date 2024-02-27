@@ -1,2 +1,2 @@
 # for testing
-vlc -v rtsp://192.168.86.215:8554/live/1
+vlc -v rtsp://192.168.86.215:554/live/1
