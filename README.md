@@ -16,8 +16,9 @@ This repository introduces a compact library designed for streaming raw H265 vid
     2. To stream the video, use the following command:
        1. over UDP: `ffplay rtsp://127.0.0.1:554/live/1`
        2. over TCP :`ffplay -rtsp_transport tcp  rtsp://127.0.0.1:554/live/1`
+### References:
 
-
+1. [Summary of streaming media transmission protocols - NALU, RTP, RTSP, RTMP, SDP, etc.](https://blog.csdn.net/qq_41205665/article/details/130749013).
 
 # License
 
