@@ -19,13 +19,13 @@ RTPMuxContext rtpMuxContext;
 uint8_t *stream = NULL;
 int stream_len = 0;
 // const char *fileName = "../sample_960x540.hevc";
- const char *fileName = "../sample_1280x720.hevc";
+const char *fileName = "../sample_1280x720.hevc";
 
 void workerThread(SOCKET s)
 {
-    SimStreamer streamer(true);            // our streamer for UDP/TCP based RTP transport.
-    streamer.addSession(s)->debug = false; // our threads RTSP session and state
-    printtime(1);
+    SimStreamer streamer(true); // our streamer for UDP/TCP based RTP transport.
+    streamer.addSession(s)->debug = false;
+
     uint8_t *stream_buf = stream;
     int stream_len_temp = stream_len;
     while (streamer.anySessions())
@@ -39,20 +39,19 @@ void workerThread(SOCKET s)
             streamer.StreamNal(&rtpMuxContext, nal, nal_len);
             rtpMuxContext.timestamp += (90000.0 / 30);
             usleep(1000000 / 30);
-            static int Cseq = 0;
-            printf("#%d, size %d \t\r", Cseq++, nal_len);
+            // static int Cseq = 0;
+            // printf("#%d, size %d \t\r", Cseq++, nal_len);
             fflush(stdout);
 
             if (stream_len_temp <= 0)
             {
                 stream_buf = stream;
                 stream_len_temp = stream_len;
-                printf("End of the file %s , Restart the file streaming again...\n",fileName);
+                printf("End of the file %s , Restart the streaming file again...\n", fileName);
             }
         }
     }
     printf("End the Session\n");
-
 }
 
 int main()
@@ -101,7 +100,10 @@ int main()
         ClientSocket = accept(MasterSocket, (struct sockaddr *)&ClientAddr, &ClientAddrLen);
         printf("Client connected. Client address: %s\r\n", inet_ntoa(ClientAddr.sin_addr));
         if (fork() == 0)
+        {
             workerThread(ClientSocket);
+            break;
+        }
     }
     closesocket(MasterSocket);
 

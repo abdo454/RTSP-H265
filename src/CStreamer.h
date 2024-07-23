@@ -28,7 +28,7 @@ public:
     void ReleaseUdpTransport(void);
     bool debug;
     void setURI(String hostport, String pres = "live", String stream = "1"); // set URI parts for sessions to use.
-    String getURIHost() { return m_URIHost; };                                // for getting things back by sessions
+    String getURIHost() { return m_URIHost; };                               // for getting things back by sessions
     String getURIPresentation() { return m_URIPresentation; };
     String getURIStream() { return m_URIStream; };
 
@@ -39,8 +39,7 @@ protected:
     String m_URIStream;       // stream part of the URI.
 
 private:
-   
-    int rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark);
+    int rtpSendData(RTPMuxContext *ctx, const uint8_t *buf, int len, int mark = 0);
 
     UDPSOCKET m_RtpSocket;  // RTP socket for streaming RTP packets to client
     UDPSOCKET m_RtcpSocket; // RTCP socket for sending/receiving RTCP packages

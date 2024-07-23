@@ -213,20 +213,24 @@ bool CStreamer::handleRequests(uint32_t readTimeoutMs)
 }
 
 #include <assert.h>
+/**
+ * General Rulle :
+ * Remove "00 00 00 01" from the original code NAL stream, add a tcp (12 Byte + 2Bytes(length)) or udp (12bits) header to the header, and then send it out.
+ */
 
 void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size, int last)
 {
-
-    // printf("NALU len = %d M=%d\n", size, last);
 
     // Single NAL Packet or Aggregation Packets
     if (size <= RTP_PAYLOAD_MAX)
     {
 
-        // Aggregation Packets
-        // usually multiple small Nal Unit are encapsulated into an RTP package to reduce the overhead of the RTP package
-        if (ctx->aggregation)
+        // Handle Aggregation Packets
+        // Multiple small NAL units are encapsulated into a single RTP packet to reduce RTP overhead
+        // Adding 4 bytes for Payload Header (2 bytes) + NAL Unit size (2 bytes)
+        if (ctx->aggregation && size + 4 <= RTP_PAYLOAD_MAX)
         {
+
             /*                       1                   2                   3
              *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
              *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -241,45 +245,43 @@ void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size,
              *  |           ...                         ...                     |
              *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
              * */
-            int buffered_size = (int)(ctx->buf_ptr - ctx->buf); // size of data in ctx->buf
 
-            // The remaining space in ctx->buf is less than the required space
-            // if (buffered_size + 2B for NALU_Size+  2B for NALU_Hdr + size > RTP_PAYLOAD_MAX)
-            if (buffered_size + 2 + 2 + size > RTP_PAYLOAD_MAX)
+            int buffered_size = static_cast<int>(ctx->buf_ptr - ctx->buf); // Calculate current buffer size
+
+            // If remaining buffer space is insufficient, send existing data
+            if (buffered_size && buffered_size + 2 + size > RTP_PAYLOAD_MAX)
             {
-                rtpSendData(ctx, ctx->buf, buffered_size, 0);
+                rtpSendData(ctx, ctx->buf, buffered_size);
                 buffered_size = 0;
             }
-
-            /* NRI(nal_ref_idc): Same as H264 encoding specification, the original code stream NRI value can be used directly here.  */
-            uint8_t curNRI = (uint8_t)(nal[0] & 0x60); // NAL NRI
-
-            if (buffered_size == 0)
+            /*   PayloadHdr (Type=48)
+             *   0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 5
+             *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             *  |F|    Type   | LayerId   | TID |
+             *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+             *      F       = 0
+             *      Type    = 48 (Aggregation Uint AU)
+             *      LayerId = 0
+             *      TID     = 1
+             */
+            // First entry in the aggregation packet
+            if (!buffered_size)
             {
-                *ctx->buf_ptr++ = (uint8_t)(24 | curNRI); // 0x18
-            }
-            else
-            {
-                uint8_t lastNRI = (uint8_t)(ctx->buf[0] & 0x60);
-                if (curNRI > lastNRI)
-                { // if curNRI > lastNRI, use new curNRI
-                    ctx->buf[0] = (uint8_t)((ctx->buf[0] & 0x9F) | curNRI);
-                }
+                ctx->buf[0] = (48 << 1);
+                ctx->buf[1] = 1;
+                ctx->buf_ptr += 2;
             }
 
-            // set STAP-A/AP NAL Header F = 1, if this NAL F is 1.
-            ctx->buf[0] |= (nal[0] & 0x80);
-
-            // NALU Size + NALU Header + NALU Data
-            Load16(ctx->buf_ptr, (uint16_t)size); // NAL size
+            // Add NALU Size, NALU Header, and NALU Data
+            Load16(ctx->buf_ptr, static_cast<uint16_t>(size)); // Load NAL size
             ctx->buf_ptr += 2;
-            memcpy(ctx->buf_ptr, nal, size); // NALU Header & Data
+            memcpy(ctx->buf_ptr, nal, size); // Copy NALU Header & Data
             ctx->buf_ptr += size;
 
-            // meet last NAL, send all buf
+            // If this is the last NAL, send the buffer
             if (last == 1)
             {
-                rtpSendData(ctx, ctx->buf, (int)(ctx->buf_ptr - ctx->buf), 1);
+                rtpSendData(ctx, ctx->buf, static_cast<int>(ctx->buf_ptr - ctx->buf));
             }
         }
         // Single NAL Unit RTP Packet
@@ -292,17 +294,17 @@ void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size,
              *  |F|    Type   | LayerId   | TID | NAL unit payload data  ... |
              *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
              * */
-            rtpSendData(ctx, nal, size, last);
+            rtpSendData(ctx, nal, size);
         }
     }
-    else
-    { // Fragmentation Unit
-        // check if already there is some data
+    else // Fragmentation Unit
+    {
+        // If buffer has existing data, send it
         if (ctx->buf_ptr > ctx->buf)
         {
-            rtpSendData(ctx, ctx->buf, (int)(ctx->buf_ptr - ctx->buf), 0);
+            rtpSendData(ctx, ctx->buf, (int)(ctx->buf_ptr - ctx->buf));
         }
-        uint8_t header_Size = 0;
+
         uint8_t nalu_type = (nal[0] >> 1) & 0x3F;
 
         /*                       1                   2                   3
@@ -340,22 +342,25 @@ void CStreamer::rtpSendNALH265(RTPMuxContext *ctx, const uint8_t *nal, int size,
          * E End   : Variable
          * FuType  :  nalu_type
          */
+        // S = 1 (start fragment), E = 0 (not end), FuType = nalu_type
         ctx->buf[2] = nalu_type;
-        /* set the S bit : mark as start fragment */
-        ctx->buf[2] |= 1 << 7; // S=1 , E=0
-        nal += 2;              // pass the orginal Nal Header , we already captures them
+        ctx->buf[2] |= 1 << 7; // Set S=1 , E=0
+        nal += 2;              // Skip the original NAL header
         size -= 2;
-        header_Size = 3; //    sizeof(PayloadHdr)+sizeof(FU header)
+        const uint8_t header_Size = 3; // sizeof(PayloadHdr) + sizeof(FU header)
+
+        // Fragment the NAL unit and send in multiple RTP packets if necessary
         while (size + header_Size > RTP_PAYLOAD_MAX)
         {
-            memcpy(&ctx->buf[header_Size], nal, (size_t)(RTP_PAYLOAD_MAX - header_Size));
-            rtpSendData(ctx, ctx->buf, RTP_PAYLOAD_MAX, 0);
+            memcpy(&ctx->buf[header_Size], nal, static_cast<size_t>(RTP_PAYLOAD_MAX - header_Size));
+            rtpSendData(ctx, ctx->buf, RTP_PAYLOAD_MAX);
             nal += RTP_PAYLOAD_MAX - header_Size;
             size -= RTP_PAYLOAD_MAX - header_Size;
-            ctx->buf[2] &= 0x7f; // S=0 , E=0
+            ctx->buf[2] &= 0x7f; // Clear S and E bits
         }
-        ctx->buf[2] |= 0x40; // S=0 , E=1
+        // Final fragment, set E bit to 1
+        ctx->buf[2] |= 0x40; 
         memcpy(&ctx->buf[header_Size], nal, size);
-        rtpSendData(ctx, ctx->buf, size + header_Size, last);
+        rtpSendData(ctx, ctx->buf, size + header_Size);
     }
 }

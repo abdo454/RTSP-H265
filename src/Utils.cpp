@@ -30,7 +30,7 @@ uint8_t *Load32(uint8_t *p, uint32_t x)
 
 int readFile(uint8_t **stream, int *len, const char *file)
 {
-    FILE *fp = NULL;
+    FILE *fp = nullptr;
     unsigned long size = 0;
     uint8_t *buf;
 
